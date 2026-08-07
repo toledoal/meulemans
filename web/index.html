@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meulemans · corpus léxico integrativo</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">Meulemans</div>
+    <div class="tag">corpus léxico integrativo · toda la historia de la palabra</div>
+  </div>
+  <form id="searchform" autocomplete="off">
+    <select id="mode" title="modo de búsqueda">
+      <option value="word">palabra</option>
+      <option value="concept">concepto (EN)</option>
+    </select>
+    <input id="q" placeholder="busca una palabra (cualquier alfabeto)…" autofocus>
+    <select id="family"><option value="">todas las familias</option></select>
+    <select id="lect"><option value="">todas las lenguas</option></select>
+    <button type="submit">Buscar</button>
+  </form>
+  <div id="statline" class="statline"></div>
+</header>
+<main>
+  <aside id="results"><div class="hint">Busca una palabra o un concepto.</div></aside>
+  <section id="detail"><div class="hint">Selecciona un resultado para ver toda su historia.</div></section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

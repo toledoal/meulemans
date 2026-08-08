@@ -8,12 +8,13 @@ import * as about from "./pages/about.js";
 import * as legal from "./pages/legal.js";
 import * as compare from "./pages/compare.js";
 import * as genealogy from "./pages/genealogy.js";
+import * as coderiv from "./pages/coderiv.js";
 
 // Registro de páginas (nav). Las futuras van marcadas "pronto" — así se ve la plataforma y añadir una es trivial.
 const PAGES = [
   { id: "search", label: "Buscar", route: "/", icon: "⌕" },
   { id: "compare", label: "Comparar", route: "/compare", icon: "⇄" },
-  { id: "coderiv", label: "Coderivados", soon: true, icon: "◕" },
+  { id: "coderiv", label: "Coderivados", route: "/coderiv", icon: "◕" },
   { id: "genealogy", label: "Genealogía", route: "/genealogy", icon: "⋔" },
   { id: "classes", label: "Clases", soon: true, icon: "◧" },
   { id: "map", label: "Mapa", soon: true, icon: "◎" },
@@ -55,6 +56,7 @@ async function route({ path, params }) {
   if (path === "/legal") { nav("legal"); return legal.render(); }
   if (path === "/compare") { nav("compare"); return compare.render(params); }
   if (path === "/genealogy") { nav("genealogy"); return genealogy.render(params); }
+  if (path === "/coderiv") { nav("coderiv"); return coderiv.render(params); }
   nav("search"); return search.render(params);
 }
 

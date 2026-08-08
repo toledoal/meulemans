@@ -207,6 +207,49 @@ def genealogy(fid):
     return {"root": base, "ancestors": nodes, "reaches_pie": any(n["lect"] == "ine-pro" for n in nodes)}
 
 
+def coderivatives(fid):
+    """Red de coderivados: los cognados de una forma, cada uno con su código/esqueleto.
+    Tesis: dentro de un cognado verdadero el CÓDIGO consonántico tiende a conservarse;
+    las divergencias son informativas. Nodo central = la forma; nodos = sus cognados."""
+    center = one("""SELECT f.id, f.orthography word, f.lect_id lect, l.name lect_name, l.family, l.subgroup,
+                           sk.code, sk.cons_skeleton cons
+                    FROM form f LEFT JOIN lect l ON l.id=f.lect_id
+                    LEFT JOIN skeleton sk ON sk.form_id=f.id WHERE f.id=%s""", (fid,))
+    if not center:
+        return {"error": "no encontrado"}
+    if not center.get("cons"):
+        center["cons"] = cons_from_ortho(center.get("word"))
+    nodes = rows("""WITH sets AS (SELECT DISTINCT cognate_set_id FROM cognate_member WHERE form_id=%s)
+        SELECT f.lect_id lect, max(l.name) lect_name,
+               (array_agg(f.id ORDER BY length(f.orthography), f.id))[1] id,
+               (array_agg(f.orthography ORDER BY length(f.orthography), f.id))[1] form,
+               max(l.family) family, max(l.subgroup) subgroup, min(g.gloss) gloss,
+               string_agg(DISTINCT cs.source, ', ' ORDER BY cs.source) srcs,
+               (array_agg(sk.code ORDER BY (sk.code IS NULL), f.id))[1] code,
+               (array_agg(sk.cons_skeleton ORDER BY (sk.cons_skeleton IS NULL), f.id))[1] cons
+        FROM sets JOIN cognate_member cm ON cm.cognate_set_id=sets.cognate_set_id
+        JOIN cognate_set cs ON cs.id=sets.cognate_set_id JOIN form f ON f.id=cm.form_id
+        LEFT JOIN lect l ON l.id=f.lect_id
+        LEFT JOIN skeleton sk ON sk.form_id=f.id
+        LEFT JOIN LATERAL (SELECT gloss FROM sense s WHERE s.form_id=f.id AND gloss IS NOT NULL LIMIT 1) g ON true
+        GROUP BY f.lect_id, lower(normalize(f.orthography,NFC)) ORDER BY f.lect_id LIMIT 160""", (fid,))
+    cc = center.get("cons")
+    cw = nfc(center.get("word")).lower()
+    out = []
+    for n in nodes:
+        if n["id"] == center["id"] or (n["lect"] == center["lect"] and nfc(n.get("form")).lower() == cw):
+            continue
+        if not n.get("cons"):
+            n["cons"] = cons_from_ortho(n.get("form"))
+        # resonancia = mismo esqueleto consonántico (letras) que el centro
+        n["resonates"] = bool(cc and n.get("cons") and n["cons"] == cc)
+        out.append(n)
+    n_res = sum(1 for n in out if n["resonates"])
+    srcs = sorted({s.strip() for n in out for s in (n.get("srcs") or "").split(",") if s.strip()})
+    return {"center": center, "nodes": out,
+            "meta": {"total": len(out), "resonantes": n_res, "sources": ", ".join(srcs)}}
+
+
 def sources():
     """Fuentes con cita/licencia/redistribuible — para la página Legal (atribución viva desde la BD)."""
     return rows("SELECT id, citation, url, kind, license, redistributable FROM source ORDER BY redistributable DESC, id")

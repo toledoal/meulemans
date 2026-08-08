@@ -172,6 +172,27 @@ table.cmp td.match{background:var(--acc-soft);color:var(--acc);font-weight:600}
 .gclab{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em}
 .gcons{font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
 
+/* ── Coderivados (red de resonancia) ── */
+.cwrap{padding:20px 26px 50px}
+.ctitle{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+.ctitle .word{font-size:22px}
+.csum{font-size:13px;color:var(--sub);margin-bottom:10px}
+.csum .cres{color:var(--acc);font-family:var(--mono)}
+.cnote{font-size:12px;max-width:720px;margin:10px 0 0;line-height:1.5}
+#cgraphwrap{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.cgraph{width:100%;height:auto;display:block}
+.clink{stroke:var(--line);stroke-width:1.2}
+.clink.res{stroke:var(--acc);stroke-width:1.6;opacity:.75}
+.clink.div{stroke:var(--line);stroke-dasharray:3 4;opacity:.6}
+.cn circle{fill:var(--panel);stroke:var(--sub);stroke-width:1.5;cursor:pointer;transition:stroke-width .12s}
+.cn.res circle{fill:var(--acc);stroke:var(--acc)}
+.cn.div circle{fill:var(--faint);stroke:var(--sub)}
+.cn.center circle{fill:var(--ink);stroke:var(--ink);cursor:default}
+.cn:hover circle,.cn:focus circle{stroke:var(--acc);stroke-width:3;outline:none}
+.clabel{font:600 11px var(--mono);fill:var(--ink);text-anchor:middle;pointer-events:none}
+.clabel.big{font-size:15px;fill:var(--ink)}
+.cn.div .clabel{fill:var(--sub);font-weight:500;font-size:10px}
+
 /* páginas de contenido (Acerca de / Legal) */
 .page{max-width:760px;margin:0 auto;padding:34px 28px 70px;line-height:1.65}
 .page h1{font-size:28px;font-weight:800;letter-spacing:-.015em;margin:.2em 0 .5em}

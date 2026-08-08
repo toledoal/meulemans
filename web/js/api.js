@@ -23,4 +23,5 @@ export const API = {
   form: id => get("/api/form?" + qs({ id })),
   compare: ids => get("/api/compare?" + qs({ ids })),
   genealogy: id => get("/api/genealogy?" + qs({ id })),
+  coderivatives: id => get("/api/coderivatives?" + qs({ id })),
 };

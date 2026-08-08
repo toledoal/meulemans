@@ -70,6 +70,11 @@ def genealogy(id: str):
     return Q.genealogy(id)
 
 
+@app.get("/api/coderivatives")
+def coderivatives(id: str):
+    return Q.coderivatives(id)
+
+
 @app.get("/")
 def index():
     return FileResponse(os.path.join(WEB, "index.html"))

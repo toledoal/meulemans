@@ -168,6 +168,8 @@ table.cmp td.match{background:var(--acc-soft);color:var(--acc);font-weight:600}
 .gform{font-family:var(--mono);font-size:19px;font-weight:600;margin:5px 0 2px}
 .gcodeline{display:flex;gap:8px;align-items:center}
 .gcode{font-family:var(--mono);font-size:14px;color:var(--acc);background:var(--soft);border-radius:5px;padding:1px 8px}
+.gcode.lit{color:var(--sub);background:transparent;border:1px dashed var(--line)}
+.gclab{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.04em}
 .gcons{font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
 
 /* páginas de contenido (Acerca de / Legal) */

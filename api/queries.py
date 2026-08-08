@@ -1,6 +1,7 @@
 """Consultas de Meulemans sobre el corpus. Todo SELECT (solo lectura). Rama/familia salen de lect.family/subgroup."""
 import unicodedata
 from .db import rows, one
+from .skeleton import cons_from_ortho
 
 _RANK = {"idiolecto": 0, "dialecto": 1, "lengua": 2, "estadio": 3, "subfamilia": 4,
          "proto_rama": 5, "pie": 6, "nostratico": 7}
@@ -194,8 +195,13 @@ def genealogy(fid):
           LIMIT 1
       ) sk ON TRUE
       ORDER BY up.parent_lect, up.parent_form, up.depth""", (fid,))
+    # esqueleto en letras para estadios reconstruidos que no lo tienen (derivado de la grafía)
+    if not base.get("cons"):
+        base["cons"] = cons_from_ortho(base.get("word"))
     for n in nodes:
         n["rank"] = _RANK.get(n["level"], 2)
+        if not n.get("cons"):
+            n["cons"] = cons_from_ortho(n.get("form"))
     base["rank"] = _RANK.get(base["level"], 2)
     nodes.sort(key=lambda n: (n["rank"], n["depth"]))
     return {"root": base, "ancestors": nodes, "reaches_pie": any(n["lect"] == "ine-pro" for n in nodes)}

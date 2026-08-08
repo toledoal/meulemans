@@ -22,7 +22,14 @@ function wirePick() {
   };
 }
 
-const codeChip = c => c ? `<code class="gcode">${esc(c)}</code>` : `<span class="mut" style="font-size:12px">— sin código</span>`;
+// Muestra el esqueleto en LETRAS siempre; el símbolo de clase (Ϻ·Θ·Λ) solo donde el corpus lo
+// computó (lenguas reales). En reconstrucciones no se emite símbolo (decisión del autor).
+function codeChip(n) {
+  const sym = n.code ? `<code class="gcode">${esc(n.code)}</code>` : "";
+  const lit = n.cons ? `<code class="gcode lit">${esc(n.cons)}</code>` : "";
+  if (!sym && !lit) return `<span class="mut" style="font-size:12px">— sin esqueleto</span>`;
+  return `${sym}${lit} <span class="gclab">${n.code ? "clase · esqueleto" : "esqueleto"}</span>`;
+}
 
 function nodeCard(n, { root = false, pie = false, kind = "", conserved = false } = {}) {
   return `<div class="gnode ${root ? "groot" : ""} ${pie ? "gpie" : ""}">
@@ -31,7 +38,7 @@ function nodeCard(n, { root = false, pie = false, kind = "", conserved = false }
       <div class="ghead"><span class="glevel">${esc(LEVEL[n.level] || n.level || "")}</span>
         <span class="glang">${esc(n.lect_name || n.lect)}</span>${pie ? '<span class="badge2 b-pie">PIE</span>' : ""}${root ? '<span class="badge2 b-src">consultada</span>' : ""}</div>
       <div class="gform">${esc(n.form || n.word)}</div>
-      <div class="gcodeline">${codeChip(n.code)} ${conserved ? '<span class="gcons">código conservado</span>' : ""}</div>
+      <div class="gcodeline">${codeChip(n)} ${conserved ? '<span class="gcons">esqueleto conservado</span>' : ""}</div>
     </div></div>`;
 }
 
@@ -44,16 +51,18 @@ export async function render(p) {
   // top→bottom: PIE (rango alto) arriba, la forma consultada abajo
   const anc = (d.ancestors || []).slice().sort((a, b) => b.rank - a.rank || a.depth - b.depth);
   const chain = anc.concat([d.root]);   // el root (la palabra) al final/abajo
-  let prevCode = null;
+  // conservación se mide sobre el ESQUELETO en letras (existe para todos los estadios, incl. reconstruidos)
+  let prevSk = null;
   const cards = chain.map((n, i) => {
     const root = n === d.root, pie = n.lect === "ine-pro";
-    const conserved = i > 0 && n.code && n.code === prevCode;
-    prevCode = n.code || prevCode;
+    const sk = n.cons || null;
+    const conserved = i > 0 && sk && sk === prevSk;
+    prevSk = sk || prevSk;
     return nodeCard(n, { root, pie, kind: root ? "" : n.kind, conserved });
   }).join("");
   const head = `<div class="gtitle"><span class="word">${esc(d.root.word)}</span>
     <span class="mut">· ${esc(d.root.lect_name || d.root.lect)}${d.root.subgroup ? " / " + esc(d.root.subgroup) : ""}</span>
     ${d.reaches_pie ? '<span class="badge2 b-pie">llega a PIE ✓</span>' : '<span class="mut">— sin étimo PIE documentado</span>'}</div>`;
   mount("#view", `<div class="gwrap">${head}<div class="gtree">${cards}</div>
-    <p class="mut" style="max-width:640px;margin:16px auto;font-size:12px;text-align:center">Se lee de arriba (más antiguo / PIE) hacia abajo (la forma consultada). «código conservado» marca los estadios donde el esqueleto no cambió de clase.</p></div>`);
+    <p class="mut" style="max-width:660px;margin:16px auto;font-size:12px;text-align:center;line-height:1.5">Se lee de arriba (más antiguo / PIE) hacia abajo (la forma consultada). Se muestra el <b>esqueleto consonántico en letras</b> en cada estadio; el <b>símbolo de clase</b> (Ϻ·Θ·Λ) solo aparece donde el corpus lo computó desde el IPA (lenguas atestiguadas) — las reconstrucciones llevan solo el esqueleto en letras. «esqueleto conservado» marca los estadios donde el esqueleto en letras no cambió.</p></div>`);
 }

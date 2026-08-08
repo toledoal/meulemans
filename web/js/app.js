@@ -4,6 +4,8 @@ import { onRoute, parse, go } from "./router.js";
 import { num, mount } from "./dom.js";
 import * as search from "./pages/search.js";
 import * as formpage from "./pages/form.js";
+import * as about from "./pages/about.js";
+import * as legal from "./pages/legal.js";
 
 // Registro de páginas (nav). Las futuras van marcadas "pronto" — así se ve la plataforma y añadir una es trivial.
 const PAGES = [
@@ -13,6 +15,8 @@ const PAGES = [
   { id: "genealogy", label: "Genealogía", soon: true },
   { id: "classes", label: "Clases OAS/Dolgo", soon: true },
   { id: "map", label: "Mapa", soon: true },
+  { id: "about", label: "Acerca de", route: "/about" },
+  { id: "legal", label: "Legal", route: "/legal" },
 ];
 
 function nav(active) {
@@ -40,6 +44,8 @@ async function initStats() {
 
 async function route({ path, params }) {
   if (path.startsWith("/form/")) { nav(null); return formpage.render(decodeURIComponent(path.slice(6))); }
+  if (path === "/about") { nav("about"); return about.render(); }
+  if (path === "/legal") { nav("legal"); return legal.render(); }
   nav("search"); return search.render(params);
 }
 

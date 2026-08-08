@@ -14,6 +14,7 @@ const qs = o => Object.entries(o).filter(([, v]) => v != null && v !== "").map((
 
 export const API = {
   stats: () => get("/api/stats", { cache: true }),
+  sources: () => get("/api/sources", { cache: true }),
   families: () => get("/api/families", { cache: true }),
   lects: (family = "") => get("/api/lects?" + qs({ family }), { cache: true }),
   search: (q, lect = "", family = "") => get("/api/search?" + qs({ q, lect, family })),

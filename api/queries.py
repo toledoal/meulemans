@@ -164,6 +164,11 @@ def form_detail(fid):
     return d
 
 
+def sources():
+    """Fuentes con cita/licencia/redistribuible — para la página Legal (atribución viva desde la BD)."""
+    return rows("SELECT id, citation, url, kind, license, redistributable FROM source ORDER BY redistributable DESC, id")
+
+
 def stats():
     return one("""SELECT (SELECT count(*) FROM form) forms, (SELECT count(DISTINCT lect_id) FROM form) langs,
                          (SELECT count(*) FROM lect WHERE family IS NOT NULL) lects,

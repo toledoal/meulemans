@@ -25,6 +25,11 @@ def stats():
     return Q.stats()
 
 
+@app.get("/api/sources")
+def sources():
+    return Q.sources()
+
+
 @app.get("/api/families")
 def families():
     return Q.families()

@@ -96,14 +96,21 @@ async function renderConcept(p, R, D, needList, key) {
     return;
   }
   D.innerHTML = '<div class="hint">cargando…</div>';
-  const d = await API.concept(p.cid, p.cfam || "");
-  const byFam = {}; (d.forms || []).forEach(r => (byFam[r.family] = byFam[r.family] || []).push(r));
+  const d = await API.concept(p.cid, p.cfam || "", p.cbranch || "");
+  const byGrp = {};                          // agrupa por familia, o por rama si hay familia elegida
+  const grpKey = r => p.cfam ? (r.subgroup || "—") : r.family;
+  (d.forms || []).forEach(r => (byGrp[grpKey(r)] = byGrp[grpKey(r)] || []).push(r));
   const famsel = `<select id="cfam"><option value="">todas las familias (${d.forms.length}${d.truncated ? "+" : ""})</option>${(d.families || []).map(f => `<option value="${esc(f)}"${f === (p.cfam || "") ? " selected" : ""}>${esc(f)}</option>`).join("")}</select>`;
-  const body = Object.keys(byFam).map(fam => `<div class="cfam">${esc(fam)} <span class="mut num">(${byFam[fam].length})</span></div><table>` +
-    byFam[fam].map(r => `<tr data-fid="${esc(r.id)}" style="cursor:pointer"><td class="lc">${lname(r.lect, r.lect_name)}</td><td><b>${esc(r.orthography)}</b></td><td class="rt"><span class="badge2 b-src">${esc(r.source)}</span></td></tr>`).join("") + "</table>").join("");
+  // selector de RAMA: solo cuando hay familia elegida
+  const brsel = p.cfam && (d.branches || []).length
+    ? `<select id="cbr"><option value="">todas las ramas</option>${d.branches.map(b => `<option value="${esc(b)}"${b === (p.cbranch || "") ? " selected" : ""}>${esc(b)}</option>`).join("")}</select>` : "";
+  const th = `<tr><td class="mut" style="font-size:11px;text-transform:uppercase">lengua</td><td class="mut" style="font-size:11px;text-transform:uppercase">forma</td><td class="mut" style="font-size:11px;text-transform:uppercase">esqueleto</td><td class="mut" style="font-size:11px;text-transform:uppercase">código</td><td class="rt mut" style="font-size:11px;text-transform:uppercase">fuente</td></tr>`;
+  const body = Object.keys(byGrp).map(g => `<div class="cfam">${esc(g)} <span class="mut num">(${byGrp[g].length})</span></div><table>${th}` +
+    byGrp[g].map(r => `<tr data-fid="${esc(r.id)}" style="cursor:pointer"><td class="lc">${lname(r.lect, r.lect_name)}</td><td><b>${esc(r.orthography)}</b></td><td class="mono">${esc(r.skeleton || "")}</td><td class="mono">${esc(r.code || "")}</td><td class="rt"><span class="badge2 b-src">${esc(r.source)}</span></td></tr>`).join("") + "</table>").join("");
   D.innerHTML = `<div class="word">${esc(d.gloss)}</div>
-    <div class="meta">concepto${d.ccid ? " #" + esc(d.ccid) : ""}${d.field ? " · <b>" + esc(d.field) + "</b>" : ""} · <span class="num">${d.forms.length}${d.truncated ? "+" : ""}</span> formas${d.truncated ? ' <span class="mut">(tope — filtra por familia)</span>' : ""}</div>
-    <div class="sec">Formas por lengua ${famsel}</div>${body}`;
-  document.getElementById("cfam").onchange = e => patch({ cfam: e.target.value });
+    <div class="meta">concepto${d.ccid ? " #" + esc(d.ccid) : ""}${d.field ? " · <b>" + esc(d.field) + "</b>" : ""} · <span class="num">${d.forms.length}${d.truncated ? "+" : ""}</span> formas${d.truncated ? ' <span class="mut">(tope — filtra por familia/rama)</span>' : ""}</div>
+    <div class="sec">Formas por lengua ${famsel} ${brsel}</div>${body}`;
+  document.getElementById("cfam").onchange = e => patch({ cfam: e.target.value, cbranch: "" });
+  const cb = document.getElementById("cbr"); if (cb) cb.onchange = e => patch({ cbranch: e.target.value });
   D.querySelectorAll("tr[data-fid]").forEach(tr => tr.onclick = () => patch({ sel: tr.dataset.fid }));
 }

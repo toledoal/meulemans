@@ -58,15 +58,20 @@ def search_concept(q):
     return r
 
 
-def concept_forms(cid, family=None):
-    """Formas de un concepto a través de lenguas, agrupables por familia; dedup por (lengua,forma)."""
+def concept_forms(cid, family=None, branch=None):
+    """Formas de un concepto a través de lenguas (con esqueleto/código), filtrables por familia y rama."""
     cr = one("SELECT COALESCE(gloss_en,concepticon_gloss) gloss, semantic_field field, concepticon_id ccid FROM concept WHERE id=%s", (cid,))
-    q = """SELECT f.id, f.lect_id, l.name lect_name, l.family, l.subgroup, f.orthography, f.source_id
-           FROM form f JOIN lect l ON l.id=f.lect_id WHERE f.concept_id=%s"""
+    q = """SELECT f.id, f.lect_id, l.name lect_name, l.family, l.subgroup, f.orthography, f.source_id,
+                  sk.cons_skeleton skeleton, sk.code
+           FROM form f JOIN lect l ON l.id=f.lect_id
+           LEFT JOIN skeleton sk ON sk.form_id=f.id
+           WHERE f.concept_id=%s"""
     p = [cid]
     if family:
         q += " AND l.family=%s"; p.append(family)
-    q += " ORDER BY l.family NULLS LAST, l.name, lower(normalize(f.orthography,NFC)) LIMIT 5000"
+    if branch:
+        q += " AND l.subgroup=%s"; p.append(branch)
+    q += " ORDER BY l.family NULLS LAST, l.subgroup NULLS LAST, l.name, lower(normalize(f.orthography,NFC)) LIMIT 5000"
     seen, out = {}, []
     for r in rows(q, p):
         k = (r["lect_id"], (r["orthography"] or "").lower())
@@ -78,8 +83,12 @@ def concept_forms(cid, family=None):
         if len(out) >= 800:
             break
     fams = [x["family"] for x in rows("SELECT DISTINCT l.family FROM form f JOIN lect l ON l.id=f.lect_id WHERE f.concept_id=%s AND l.family IS NOT NULL ORDER BY 1", (cid,))]
+    # ramas (subgroups) disponibles SOLO dentro de la familia elegida
+    brs = []
+    if family:
+        brs = [x["subgroup"] for x in rows("SELECT DISTINCT l.subgroup FROM form f JOIN lect l ON l.id=f.lect_id WHERE f.concept_id=%s AND l.family=%s AND l.subgroup IS NOT NULL ORDER BY 1", (cid, family))]
     return {"gloss": cr["gloss"] if cr else "?", "field": cr["field"] if cr else None,
-            "ccid": cr["ccid"] if cr else None, "forms": out, "families": fams, "truncated": len(out) >= 800}
+            "ccid": cr["ccid"] if cr else None, "forms": out, "families": fams, "branches": brs, "truncated": len(out) >= 800}
 
 
 def form_detail(fid):

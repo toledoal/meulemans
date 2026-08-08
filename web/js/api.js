@@ -18,6 +18,6 @@ export const API = {
   lects: (family = "") => get("/api/lects?" + qs({ family }), { cache: true }),
   search: (q, lect = "", family = "") => get("/api/search?" + qs({ q, lect, family })),
   concepts: q => get("/api/concepts?" + qs({ q })),
-  concept: (cid, family = "") => get(`/api/concept/${cid}?` + qs({ family })),
+  concept: (cid, family = "", branch = "") => get(`/api/concept/${cid}?` + qs({ family, branch })),
   form: id => get("/api/form?" + qs({ id })),
 };

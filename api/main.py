@@ -46,8 +46,8 @@ def concepts(q: str):
 
 
 @app.get("/api/concept/{cid}")
-def concept(cid: int, family: str = ""):
-    return Q.concept_forms(cid, family or None)
+def concept(cid: int, family: str = "", branch: str = ""):
+    return Q.concept_forms(cid, family or None, branch or None)
 
 
 @app.get("/api/form")

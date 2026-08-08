@@ -32,7 +32,7 @@ async function loadLects(family, val = "") {
   sel.value = val; sel.onchange = () => patch({ lang: sel.value });
 }
 function wireToolbar() {
-  document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => patch({ mode: b.dataset.mode, q: "", sel: "", cid: "", cfam: "" }));
+  document.querySelectorAll(".toggle button[data-mode]").forEach(b => b.onclick = () => patch({ mode: b.dataset.mode, q: "", sel: "", cid: "", cfam: "" }));
   const run = () => patch({ q: document.getElementById("q").value.trim(), sel: "", cid: "", cfam: "" });
   document.getElementById("dobtn").onclick = run;
   document.getElementById("q").addEventListener("keydown", e => { if (e.key === "Enter") run(); });
@@ -44,8 +44,8 @@ export async function render(p) {
   const listKey = [mode, p.q || "", p.family || "", p.lang || ""].join("|");
   const tb = document.getElementById("toolbar");
   // (re)construir shell solo si no existe o cambió el modo (preserva foco/scroll en cambios de selección)
-  if (!document.querySelector("#view .split") || tb.dataset.mode !== mode) {
-    mount("#toolbar", toolbar(p)); tb.dataset.mode = mode; wireToolbar();
+  if (!document.querySelector("#view .split") || tb.dataset.tbmode !== mode) {
+    mount("#toolbar", toolbar(p)); tb.dataset.tbmode = mode; wireToolbar();
     if (mode === "word") await fillFilters(p);
     mount("#view", `<div class="split"><aside id="results"></aside><section id="detail"></section></div>`);
     document.getElementById("results").dataset.key = "";

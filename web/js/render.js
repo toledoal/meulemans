@@ -65,7 +65,8 @@ export function senses(d) {
 }
 
 export function formHeader(d) {
-  return `<div class="word">${esc(d.word)}</div>
+  return `<div class="whead"><div class="word">${esc(d.word)}</div>
+      <a class="cmpadd" href="#/compare?ids=${encodeURIComponent(d.id)}">+ comparar</a></div>
     <div class="meta"><b>${lname(d.lect_id, d.lect_name)}</b> · ${esc(d.family || "")}${d.subgroup ? " / " + esc(d.subgroup) : ""}
       ${d.pos ? " · " + esc(d.pos) : ""}${d.is_loan ? ' · <span class="badge2 b-loan">préstamo</span>' : ""}
       · <span class="mut">fuente</span> ${srcbadge(d.source)}</div>`;

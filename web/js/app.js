@@ -6,11 +6,12 @@ import * as search from "./pages/search.js";
 import * as formpage from "./pages/form.js";
 import * as about from "./pages/about.js";
 import * as legal from "./pages/legal.js";
+import * as compare from "./pages/compare.js";
 
 // Registro de páginas (nav). Las futuras van marcadas "pronto" — así se ve la plataforma y añadir una es trivial.
 const PAGES = [
   { id: "search", label: "Buscar", route: "/" },
-  { id: "compare", label: "Comparar", soon: true },
+  { id: "compare", label: "Comparar", route: "/compare" },
   { id: "coderiv", label: "Coderivados", soon: true },
   { id: "genealogy", label: "Genealogía", soon: true },
   { id: "classes", label: "Clases OAS/Dolgo", soon: true },
@@ -46,6 +47,7 @@ async function route({ path, params }) {
   if (path.startsWith("/form/")) { nav(null); return formpage.render(decodeURIComponent(path.slice(6))); }
   if (path === "/about") { nav("about"); return about.render(); }
   if (path === "/legal") { nav("legal"); return legal.render(); }
+  if (path === "/compare") { nav("compare"); return compare.render(params); }
   nav("search"); return search.render(params);
 }
 

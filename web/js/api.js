@@ -21,4 +21,5 @@ export const API = {
   concepts: q => get("/api/concepts?" + qs({ q })),
   concept: (cid, family = "", branch = "") => get(`/api/concept/${cid}?` + qs({ family, branch })),
   form: id => get("/api/form?" + qs({ id })),
+  compare: ids => get("/api/compare?" + qs({ ids })),
 };

@@ -60,6 +60,11 @@ def form(id: str):
     return Q.form_detail(id)
 
 
+@app.get("/api/compare")
+def compare(ids: str = ""):
+    return [Q.form_detail(i) for i in ids.split(",") if i][:8]
+
+
 @app.get("/")
 def index():
     return FileResponse(os.path.join(WEB, "index.html"))

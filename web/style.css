@@ -119,6 +119,29 @@ td.lc{white-space:nowrap}.gl{color:var(--mut)}td.rt{text-align:right;white-space
 .sk{background:linear-gradient(90deg,var(--soft),var(--line),var(--soft));background-size:200% 100%;animation:sh 1.2s infinite;border-radius:6px;height:14px;margin:8px 0}
 @keyframes sh{to{background-position:-200% 0}}
 
+/* + comparar en la ficha */
+.whead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.cmpadd{font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:8px;padding:3px 10px;color:var(--acc)}
+.cmpadd:hover{background:var(--soft);text-decoration:none}
+
+/* barra de añadir (Comparar) */
+.adddrop{position:absolute;margin-top:44px;background:var(--panel);border:1px solid var(--line);border-radius:9px;min-width:300px;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:320px;overflow:auto}
+.adddrop:empty{display:none}
+.addrow{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+.addrow:hover{background:var(--acc-soft)}
+
+/* tabla comparativa */
+.cmpwrap{padding:22px 26px;overflow:auto}
+table.cmp{border-collapse:separate;border-spacing:0;min-width:100%}
+table.cmp th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:700;padding:8px 12px;white-space:nowrap;vertical-align:top;position:sticky;left:0;background:var(--bg)}
+table.cmp td{padding:8px 12px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);vertical-align:top;min-width:150px;font-size:14px}
+table.cmp td.mono{font-family:var(--mono);font-size:13px}
+table.cmp td.match{background:var(--acc-soft);color:var(--acc);font-weight:600}
+.cmphead{background:var(--panel2);position:relative}
+.cmphead .w{font-size:20px;font-weight:800}
+.rm{position:absolute;top:6px;right:8px;border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:6px;cursor:pointer;font-size:12px;line-height:1;padding:2px 6px}
+.rm:hover{background:var(--loan);color:#fff;border-color:var(--loan)}
+
 /* páginas de contenido (Acerca de / Legal) */
 .page{max-width:760px;margin:0 auto;padding:34px 28px 70px;line-height:1.65}
 .page h1{font-size:28px;font-weight:800;letter-spacing:-.015em;margin:.2em 0 .5em}

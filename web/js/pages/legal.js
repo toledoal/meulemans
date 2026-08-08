@@ -38,7 +38,7 @@ export async function render() {
     <div class="cite">
       <div class="mut">Herramienta / corpus:</div>
       Toledo Martínez, A. (${YEAR}). <i>Meulemans — corpus léxico integrativo</i>. Capa de consulta sobre el Corpus
-      Integrativo. En honor a la Dra. Cristiane S. Meulemans y el Dr. José Ángel Elías (Fundación Dr. J. Meulemans).
+      Integrativo. En honor a la Dra. Christiane S. Meulemans y el Dr. José Ángel Elías (Fundación Dr. J. Meulemans).
       <div class="mut" style="margin-top:8px">Y además, cita la <b>fuente específica</b> de cada dato que uses (tabla de abajo).</div>
     </div>
 
@@ -53,7 +53,7 @@ export async function render() {
     etimológicos comerciales) se emplean solo como referencia interna de investigación y no se distribuyen.</p>
 
     <h2>Reconocimiento</h2>
-    <p>La disciplina que este proyecto sirve fue fundada por la Dra. Cristiane S. Meulemans y el Dr. José Ángel Elías
+    <p>La disciplina que este proyecto sirve fue fundada por la Dra. Christiane S. Meulemans y el Dr. José Ángel Elías
     (Fundación Dr. J. Meulemans). Ver <a href="#/about">Acerca de</a>.</p>
   </div>`);
 }

@@ -164,6 +164,43 @@ def form_detail(fid):
     return d
 
 
+def genealogy(fid):
+    """Árbol de linaje de una forma hasta PIE (loan-safe), con el ESQUELETO/CÓDIGO de cada estadio (si existe)."""
+    base = one("""SELECT f.id, f.orthography word, f.lect_id lect, l.name lect_name, l.level, l.family, l.subgroup,
+                         sk.code, sk.cons_skeleton cons
+                  FROM form f LEFT JOIN lect l ON l.id=f.lect_id LEFT JOIN skeleton sk ON sk.form_id=f.id
+                  WHERE f.id=%s""", (fid,))
+    if not base:
+        return {"error": "no encontrado"}
+    nodes = rows("""WITH RECURSIVE up AS (
+        SELECT fe.parent_lect, fe.parent_form, fe.parent_form_id, fe.kind, fe.source_id, 1 depth, ARRAY[fe.child_form_id] path
+        FROM form_etymology fe WHERE fe.child_form_id=%s
+        UNION ALL
+        SELECT fe.parent_lect, fe.parent_form, fe.parent_form_id, fe.kind, fe.source_id, up.depth+1, up.path||fe.child_form_id
+        FROM form_etymology fe JOIN up ON fe.child_form_id=up.parent_form_id
+        WHERE up.depth<15 AND NOT fe.child_form_id = ANY(up.path) AND up.kind IN ('herencia','reconstruido'))
+      SELECT DISTINCT ON (up.parent_lect, up.parent_form)
+             up.parent_lect lect, up.parent_form form, up.kind, up.source_id src, up.depth,
+             l.name lect_name, l.level, sk.code, sk.cons cons
+      FROM up LEFT JOIN lect l ON l.id=up.parent_lect
+      LEFT JOIN LATERAL (
+          -- prefiere el esqueleto de la forma exacta; si no, cualquier variante
+          -- skeletonizada de la misma lengua+ortografía (normalizada sin diacríticos ni '*')
+          SELECT s.code, s.cons_skeleton cons FROM skeleton s WHERE s.form_id = up.parent_form_id
+          UNION ALL
+          SELECT s2.code, s2.cons_skeleton FROM form f2 JOIN skeleton s2 ON s2.form_id = f2.id
+          WHERE f2.lect_id = up.parent_lect
+            AND lower(unaccent(f2.orthography)) = lower(unaccent(regexp_replace(up.parent_form, '^[*]', '')))
+          LIMIT 1
+      ) sk ON TRUE
+      ORDER BY up.parent_lect, up.parent_form, up.depth""", (fid,))
+    for n in nodes:
+        n["rank"] = _RANK.get(n["level"], 2)
+    base["rank"] = _RANK.get(base["level"], 2)
+    nodes.sort(key=lambda n: (n["rank"], n["depth"]))
+    return {"root": base, "ancestors": nodes, "reaches_pie": any(n["lect"] == "ine-pro" for n in nodes)}
+
+
 def sources():
     """Fuentes con cita/licencia/redistribuible — para la página Legal (atribución viva desde la BD)."""
     return rows("SELECT id, citation, url, kind, license, redistributable FROM source ORDER BY redistributable DESC, id")

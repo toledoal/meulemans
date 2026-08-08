@@ -149,6 +149,27 @@ table.cmp td.match{background:var(--acc-soft);color:var(--acc);font-weight:600}
 .rm{position:absolute;top:6px;right:8px;border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:6px;cursor:pointer;font-size:12px;line-height:1;padding:2px 6px}
 .rm:hover{background:var(--loan);color:#fff;border-color:var(--loan)}
 
+/* ── Genealogía (árbol vertical) ── */
+.gwrap{padding:22px 26px 60px;overflow:auto}
+.gtitle{display:flex;gap:10px;align-items:baseline;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
+.gtitle .word{font-size:22px}
+.gtree{max-width:540px;margin:16px auto 0;display:flex;flex-direction:column}
+.gnode{display:flex;flex-direction:column;align-items:center}
+.gedge{height:26px;display:flex;align-items:center;justify-content:center;position:relative}
+.gedge::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--line)}
+.gk{position:relative;background:var(--bg);padding:0 8px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);font-weight:700}
+.gk.loan{color:var(--loan)}
+.gcard{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:11px 14px}
+.gpie .gcard{border-color:var(--pie);background:color-mix(in srgb,var(--pie) 8%,var(--panel))}
+.groot .gcard{border-color:var(--acc);border-width:2px;background:var(--acc-soft)}
+.ghead{display:flex;gap:8px;align-items:center;font-size:12px}
+.glevel{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-weight:700}
+.glang{font-weight:700;color:var(--ink)}
+.gform{font-family:var(--mono);font-size:19px;font-weight:600;margin:5px 0 2px}
+.gcodeline{display:flex;gap:8px;align-items:center}
+.gcode{font-family:var(--mono);font-size:14px;color:var(--acc);background:var(--soft);border-radius:5px;padding:1px 8px}
+.gcons{font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+
 /* páginas de contenido (Acerca de / Legal) */
 .page{max-width:760px;margin:0 auto;padding:34px 28px 70px;line-height:1.65}
 .page h1{font-size:28px;font-weight:800;letter-spacing:-.015em;margin:.2em 0 .5em}

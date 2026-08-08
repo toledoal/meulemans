@@ -65,6 +65,11 @@ def compare(ids: str = ""):
     return [Q.form_detail(i) for i in ids.split(",") if i][:8]
 
 
+@app.get("/api/genealogy")
+def genealogy(id: str):
+    return Q.genealogy(id)
+
+
 @app.get("/")
 def index():
     return FileResponse(os.path.join(WEB, "index.html"))

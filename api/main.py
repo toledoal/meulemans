@@ -75,6 +75,11 @@ def coderivatives(id: str):
     return Q.coderivatives(id)
 
 
+@app.get("/api/mapconcept")
+def mapconcept(cid: str, family: str = None, branch: str = None):
+    return Q.map_concept(cid, family, branch)
+
+
 @app.get("/")
 def index():
     return FileResponse(os.path.join(WEB, "index.html"))

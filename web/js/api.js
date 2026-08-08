@@ -24,4 +24,5 @@ export const API = {
   compare: ids => get("/api/compare?" + qs({ ids })),
   genealogy: id => get("/api/genealogy?" + qs({ id })),
   coderivatives: id => get("/api/coderivatives?" + qs({ id })),
+  mapconcept: (cid, family = "", branch = "") => get("/api/mapconcept?" + qs({ cid, family, branch })),
 };

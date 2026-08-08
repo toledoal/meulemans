@@ -92,6 +92,37 @@ def concept_forms(cid, family=None, branch=None):
             "ccid": cr["ccid"] if cr else None, "forms": out, "families": fams, "branches": brs, "truncated": len(out) >= 800}
 
 
+def map_concept(cid, family=None, branch=None):
+    """Puntos geográficos de un concepto: un punto por lengua (con lat/lon), su forma y código.
+    Para el mapa isoglósico — ver la distribución espacial de las formas/esqueletos."""
+    cr = one("SELECT COALESCE(gloss_en,concepticon_gloss) gloss, semantic_field field FROM concept WHERE id=%s", (cid,))
+    q = """SELECT f.id, f.lect_id lect, l.name lect_name, l.family, l.subgroup,
+                  l.latitude lat, l.longitude lon, f.orthography form, sk.code, sk.cons_skeleton cons
+           FROM form f JOIN lect l ON l.id=f.lect_id
+           LEFT JOIN skeleton sk ON sk.form_id=f.id
+           WHERE f.concept_id=%s AND l.latitude IS NOT NULL AND l.longitude IS NOT NULL"""
+    p = [cid]
+    if family:
+        q += " AND l.family=%s"; p.append(family)
+    if branch:
+        q += " AND l.subgroup=%s"; p.append(branch)
+    q += " ORDER BY l.family NULLS LAST, l.name, length(f.orthography) LIMIT 6000"
+    seen, pts = set(), []
+    for r in rows(q, p):
+        if r["lect"] in seen:
+            continue
+        seen.add(r["lect"])
+        if not r.get("cons"):
+            r["cons"] = cons_from_ortho(r.get("form"))
+        pts.append(r)
+    fams = [x["family"] for x in rows("SELECT DISTINCT l.family FROM form f JOIN lect l ON l.id=f.lect_id WHERE f.concept_id=%s AND l.family IS NOT NULL AND l.latitude IS NOT NULL ORDER BY 1", (cid,))]
+    brs = []
+    if family:
+        brs = [x["subgroup"] for x in rows("SELECT DISTINCT l.subgroup FROM form f JOIN lect l ON l.id=f.lect_id WHERE f.concept_id=%s AND l.family=%s AND l.subgroup IS NOT NULL AND l.latitude IS NOT NULL ORDER BY 1", (cid, family))]
+    return {"gloss": cr["gloss"] if cr else "?", "field": cr["field"] if cr else None,
+            "points": pts, "families": fams, "branches": brs}
+
+
 def form_detail(fid):
     d = one("""SELECT f.id, f.lect_id, f.orthography word, f.ipa_raw, f.ipa_elab, f.pos, f.etymology_text,
                       f.is_proper, f.source_id source, f.is_loan, l.name lect_name, l.family, l.subgroup, l.level

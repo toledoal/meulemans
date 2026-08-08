@@ -6,6 +6,14 @@ from .skeleton import cons_from_ortho
 _RANK = {"idiolecto": 0, "dialecto": 1, "lengua": 2, "estadio": 3, "subfamilia": 4,
          "proto_rama": 5, "pie": 6, "nostratico": 7}
 
+# Regla de linaje: preferir HERENCIA/reconstruido; trepar un PRÉSTAMO solo cuando el nodo no
+# tiene ninguna arista de herencia (el préstamo ES el origen, p.ej. 'pedestrian' < lat. pedester).
+# Así 'gato' sigue cattus (herencia) e ignora gâteau (préstamo espurio), y los latinismos/anglicismos
+# sí muestran su ruta de préstamo hacia el étimo. El préstamo queda MARCADO (kind) en el árbol.
+_FOLLOW = """(fe.kind IN ('herencia','reconstruido')
+              OR NOT EXISTS (SELECT 1 FROM form_etymology h
+                             WHERE h.child_form_id=fe.child_form_id AND h.kind IN ('herencia','reconstruido')))"""
+
 
 def nfc(s):
     return unicodedata.normalize("NFC", (s or "").strip())
@@ -132,16 +140,15 @@ def form_detail(fid):
     d["senses"] = [r["gloss"] for r in rows("SELECT gloss FROM sense WHERE form_id=%s AND gloss IS NOT NULL LIMIT 40", (fid,))]
 
     # LINAJE "toda la historia" — walk recursivo loan-safe (no trepa por préstamo/sustrato)
-    lin = rows("""WITH RECURSIVE up AS (
+    lin = rows(f"""WITH RECURSIVE up AS (
                     SELECT fe.parent_lect, fe.parent_form, fe.parent_form_id, fe.kind, fe.source_id,
                            1 depth, ARRAY[fe.child_form_id] path
-                    FROM form_etymology fe WHERE fe.child_form_id=%s
+                    FROM form_etymology fe WHERE fe.child_form_id=%s AND {_FOLLOW}
                     UNION ALL
                     SELECT fe.parent_lect, fe.parent_form, fe.parent_form_id, fe.kind, fe.source_id,
                            up.depth+1, up.path||fe.child_form_id
                     FROM form_etymology fe JOIN up ON fe.child_form_id=up.parent_form_id
-                    WHERE up.depth<15 AND NOT fe.child_form_id = ANY(up.path)
-                      AND up.kind IN ('herencia','reconstruido'))
+                    WHERE up.depth<15 AND NOT fe.child_form_id = ANY(up.path) AND {_FOLLOW})
                   SELECT DISTINCT ON (up.parent_lect, up.parent_form)
                          up.parent_lect lect, up.parent_form form, up.kind, up.source_id src,
                          up.depth, l.name lect_name, l.level
@@ -204,13 +211,13 @@ def genealogy(fid):
                   WHERE f.id=%s""", (fid,))
     if not base:
         return {"error": "no encontrado"}
-    nodes = rows("""WITH RECURSIVE up AS (
+    nodes = rows(f"""WITH RECURSIVE up AS (
         SELECT fe.parent_lect, fe.parent_form, fe.parent_form_id, fe.kind, fe.source_id, 1 depth, ARRAY[fe.child_form_id] path
-        FROM form_etymology fe WHERE fe.child_form_id=%s
+        FROM form_etymology fe WHERE fe.child_form_id=%s AND {_FOLLOW}
         UNION ALL
         SELECT fe.parent_lect, fe.parent_form, fe.parent_form_id, fe.kind, fe.source_id, up.depth+1, up.path||fe.child_form_id
         FROM form_etymology fe JOIN up ON fe.child_form_id=up.parent_form_id
-        WHERE up.depth<15 AND NOT fe.child_form_id = ANY(up.path) AND up.kind IN ('herencia','reconstruido'))
+        WHERE up.depth<15 AND NOT fe.child_form_id = ANY(up.path) AND {_FOLLOW})
       SELECT DISTINCT ON (up.parent_lect, up.parent_form)
              up.parent_lect lect, up.parent_form form, up.kind, up.source_id src, up.depth,
              l.name lect_name, l.level, sk.code, sk.cons cons

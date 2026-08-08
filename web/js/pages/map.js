@@ -84,7 +84,9 @@ function draw(d, p) {
 
   const dots = pts.map(x => {
     const c = color[(byBranch ? x.subgroup : x.family) || "—"] || GREY;
-    return `<circle class="mdot" cx="${px(x.lon).toFixed(1)}" cy="${py(x.lat).toFixed(1)}" r="2.6" fill="${c}" data-id="${esc(x.id)}"><title>${esc(x.form)} · ${esc(x.lect_name || x.lect)}${x.cons ? " · " + esc(x.cons) : ""} · ${esc(x.subgroup || x.family || "")}</title></circle>`;
+    return `<circle class="mdot" cx="${px(x.lon).toFixed(1)}" cy="${py(x.lat).toFixed(1)}" r="2.6" fill="${c}"
+      data-id="${esc(x.id)}" data-form="${esc(x.form)}" data-lect="${esc(x.lect_name || x.lect)}"
+      data-grp="${esc(x.subgroup || x.family || "")}" data-cons="${esc(x.cons || "")}"></circle>`;
   }).join("");
 
   const leg = legend.map(l => `<span class="mleg"><i style="background:${l.c}"></i>${esc(l.k)} <span class="num mut">${l.n}</span></span>`).join("");
@@ -104,6 +106,7 @@ function draw(d, p) {
         <path d="${landPath}" class="mland"/>
         <g class="mdots">${dots}</g>
       </svg>
+      <div id="mtip" class="mtip" hidden></div>
     </div>
     <p class="mut cnote">Punto = una lengua en su ubicación (Glottolog). Color = ${byBranch ? "rama dentro de la familia" : "familia lingüística"} (top ${PAL.length}; el resto en gris). Clic en un punto abre su ficha.</p>
   </div>`);
@@ -112,5 +115,23 @@ function draw(d, p) {
   if (fam) fam.onchange = () => patch({ family: fam.value, branch: "" });
   const br = document.getElementById("mbr");
   if (br) br.onchange = () => patch({ branch: br.value });
-  document.querySelectorAll(".mdot").forEach(el => el.onclick = () => { location.hash = "#/form/" + encodeURIComponent(el.dataset.id); });
+
+  const frame = document.querySelector(".mapframe"), tip = document.getElementById("mtip");
+  document.querySelectorAll(".mdot").forEach(el => {
+    el.onclick = () => { location.hash = "#/form/" + encodeURIComponent(el.dataset.id); };
+    el.onmouseenter = () => {
+      const d = el.dataset;
+      tip.innerHTML = `<div class="mtform">${esc(d.form)}</div>
+        <div class="mtlect">${esc(d.lect)}</div>
+        <div class="mtmeta">${d.cons ? `<code>${esc(d.cons)}</code> · ` : ""}${esc(d.grp)}</div>`;
+      tip.hidden = false;
+    };
+    el.onmousemove = e => {
+      const r = frame.getBoundingClientRect();
+      let x = e.clientX - r.left + 12, y = e.clientY - r.top + 12;
+      if (x + 190 > r.width) x = e.clientX - r.left - 190;
+      tip.style.left = x + "px"; tip.style.top = y + "px";
+    };
+    el.onmouseleave = () => { tip.hidden = true; };
+  });
 }

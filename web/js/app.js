@@ -10,21 +10,26 @@ import * as compare from "./pages/compare.js";
 
 // Registro de páginas (nav). Las futuras van marcadas "pronto" — así se ve la plataforma y añadir una es trivial.
 const PAGES = [
-  { id: "search", label: "Buscar", route: "/" },
-  { id: "compare", label: "Comparar", route: "/compare" },
-  { id: "coderiv", label: "Coderivados", soon: true },
-  { id: "genealogy", label: "Genealogía", soon: true },
-  { id: "classes", label: "Clases OAS/Dolgo", soon: true },
-  { id: "map", label: "Mapa", soon: true },
+  { id: "search", label: "Buscar", route: "/", icon: "⌕" },
+  { id: "compare", label: "Comparar", route: "/compare", icon: "⇄" },
+  { id: "coderiv", label: "Coderivados", soon: true, icon: "◕" },
+  { id: "genealogy", label: "Genealogía", soon: true, icon: "⋔" },
+  { id: "classes", label: "Clases", soon: true, icon: "◧" },
+  { id: "map", label: "Mapa", soon: true, icon: "◎" },
+];
+const SECONDARY = [
   { id: "about", label: "Acerca de", route: "/about" },
   { id: "legal", label: "Legal", route: "/legal" },
 ];
 
+function navItem(p, active) {
+  return `<a class="navitem ${p.soon ? "soon" : ""} ${active === p.id ? "on" : ""}" ${p.soon ? "" : `data-route="${p.route}"`}>
+    ${p.icon ? `<span class="ic">${p.icon}</span>` : ""}<span class="lb">${p.label}</span>${p.soon ? '<span class="badge">pronto</span>' : ""}</a>`;
+}
 function nav(active) {
-  mount("#nav", PAGES.map(p =>
-    `<span class="navitem ${p.soon ? "soon" : ""} ${active === p.id ? "on" : ""}" ${p.soon ? "" : `data-route="${p.route}"`}>
-       ${p.label}${p.soon ? '<span class="badge">pronto</span>' : ""}</span>`).join(""));
-  document.querySelectorAll("#nav [data-route]").forEach(n => n.onclick = () => go(n.dataset.route, {}));
+  mount("#nav", `<div class="navsec">Explorar</div>${PAGES.map(p => navItem(p, active)).join("")}
+    <div class="navsep"></div>${SECONDARY.map(p => navItem(p, active)).join("")}`);
+  document.querySelectorAll("#nav [data-route]").forEach(n => n.onclick = e => { e.preventDefault(); go(n.dataset.route, {}); });
 }
 
 function initTheme() {
